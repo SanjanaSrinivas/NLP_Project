@@ -8,6 +8,8 @@ from sklearn.svm import SVC
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report
 
+# RUN USING python -W ignore flag
+
 def get_metrics(y_test, y_predicted):  
     # true positives / (true positives+false positives)
     precision = precision_score(y_test, y_predicted, pos_label=None,
@@ -27,7 +29,7 @@ def get_metrics(y_test, y_predicted):
 df = pd.read_csv('data/clean_data.csv', header = 0)
 data_matrix = df.as_matrix()
 
-_, text_data, labels = data_matrix.T
+text_data, labels = data_matrix.T
 
 print "BAG OF WORDS"
 count_vect = CountVectorizer(encoding="ISO-8859-1")
