@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
+from sklearn.dummy import DummyClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
@@ -39,7 +40,7 @@ count_vect = CountVectorizer(encoding="ISO-8859-1")
 count_data = count_vect.fit_transform(text_data)
 
 X_train, X_test, y_train, y_test = train_test_split(count_data, labels, 
-                                    test_size=0.2, random_state=42)
+                                    test_size=0.2, random_state=40)
 
 clf = RandomForestClassifier()
 clf.fit(X_train, y_train)
@@ -62,12 +63,20 @@ y_pred = clf.predict(X_test)
 accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
 print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
-clf = SVC()
+clf = SVC(kernel='linear', gamma='scale')
 clf.fit(X_train, y_train)
 print "SVM"
 y_pred = clf.predict(X_test)
 accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
 print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+
+clf = DummyClassifier()
+clf.fit(X_train, y_train)
+print "Dummy"
+y_pred = clf.predict(X_test)
+accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
+print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+
 
 print "\nTF-IDF"
 tfidf_vect = TfidfVectorizer(encoding="ISO-8859-1")
@@ -76,7 +85,7 @@ tfidf_data = tfidf_vect.fit_transform(text_data)
 X_train, X_test, y_train, y_test = train_test_split(tfidf_data, labels, 
                                     test_size=0.2, random_state=42)
 
-clf = RandomForestClassifier()
+clf = RandomForestClassifier(n_estimators=100, class_weight={' NA': 4})
 clf.fit(X_train, y_train)
 print "Random Forest"
 y_pred = clf.predict(X_test)
@@ -97,13 +106,21 @@ y_pred = clf.predict(X_test)
 accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
 print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
-clf = SVC()
+clf = SVC(kernel = 'sigmoid', C=70, gamma=0.05)
 clf.fit(X_train, y_train)
 print "SVM"
 y_pred = clf.predict(X_test)
 accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
 print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
+clf = DummyClassifier()
+clf.fit(X_train, y_train)
+print "Dummy"
+y_pred = clf.predict(X_test)
+accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
+print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+
+'''
 print "\nWord2Vec"
 word2vec_path = "GoogleNews-vectors-negative300.bin.gz"
 word2vec = gensim.models.KeyedVectors.load_word2vec_format(word2vec_path, binary=True)
@@ -145,9 +162,10 @@ y_pred = clf.predict(X_test)
 accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
 print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
-clf = SVC()
+clf = SVC(kernel='linear', gamma='scale')
 clf.fit(X_train, y_train)
 print "SVM"
 y_pred = clf.predict(X_test)
 accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
 print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+'''
