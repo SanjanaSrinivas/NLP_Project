@@ -15,7 +15,7 @@ output_file = open("data/total_cleaned.csv", "w")
 
 def sanitize_characters(raw, clean):    
     for line in input_file:
-        out = line.encode("utf-8").strip().replace("#", "")
+        out = line.encode("utf-8").strip().replace("#", "") 
         output_file.write(out + '\n')
 
 def standardize_text(df, text_field):
