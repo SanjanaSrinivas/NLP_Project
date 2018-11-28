@@ -16,42 +16,45 @@ import gensim
 
 def get_metrics(y_test, y_predicted):  
     # true positives / (true positives+false positives)
-    precision = precision_score(y_test, y_predicted, pos_label=None,
+    precision = precision_score(y_test, y_predicted, pos_label=' A',
                                     average='weighted')             
     # true positives / (true positives + false negatives)
-    recall = recall_score(y_test, y_predicted, pos_label=None,
+    recall = recall_score(y_test, y_predicted, pos_label=' A',
                               average='weighted')
     
     # harmonic mean of precision and recall
-    f1 = f1_score(y_test, y_predicted, pos_label=None, average='weighted')
+    f1 = f1_score(y_test, y_predicted, pos_label=' A', average='weighted')
     
     # true positives + true negatives/ total
     accuracy = accuracy_score(y_test, y_predicted)
     return accuracy, precision, recall, f1
 
 
-df = pd.read_csv('data/clean_data.csv', header = 0)
-data_matrix = df.as_matrix()
-
+df = pd.read_csv('data/clean_data.csv', header = 1)
+df.columns=['text', 'label']
+df['label'] = df['label'].fillna(' NA')
+#data_matrix = df.to_records(index=False)
+#data_matrix = np.asarray(data_matrix)
+data_matrix = df.values
 text_data, labels = data_matrix.T
 
 print "BAG OF WORDS"
-count_vect = CountVectorizer(encoding="ISO-8859-1")
+count_vect = CountVectorizer()
 count_data = count_vect.fit_transform(text_data)
 
 X_train, X_test, y_train, y_test = train_test_split(count_data, labels, 
                                     test_size=0.2, random_state=40)
 
-clf = RandomForestClassifier()
+clf = MultinomialNB()
 clf.fit(X_train, y_train)
-print "Random Forest"
+print "Multinomial NB"
 y_pred = clf.predict(X_test)
 accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
 print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
-clf = MultinomialNB()
+clf = RandomForestClassifier()
 clf.fit(X_train, y_train)
-print "Multinomial NB"
+print "Random Forest"
 y_pred = clf.predict(X_test)
 accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
 print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
@@ -79,7 +82,7 @@ print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy,
 
 
 print "\nTF-IDF"
-tfidf_vect = TfidfVectorizer(encoding="ISO-8859-1")
+tfidf_vect = TfidfVectorizer()
 tfidf_data = tfidf_vect.fit_transform(text_data)
 
 X_train, X_test, y_train, y_test = train_test_split(tfidf_data, labels, 
