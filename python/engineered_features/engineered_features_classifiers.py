@@ -12,17 +12,17 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 # RUN USING python -W ignore flag
 
-def get_metrics(y_test, y_predicted):
+def get_metrics(y_test, y_predicted):  
     # true positives / (true positives+false positives)
-    precision = precision_score(y_test, y_predicted, pos_label=None,
-                                average='weighted')
+    precision = precision_score(y_test, y_predicted, pos_label=' A',
+                                    average='weighted')             
     # true positives / (true positives + false negatives)
-    recall = recall_score(y_test, y_predicted, pos_label=None,
-                          average='weighted')
-
+    recall = recall_score(y_test, y_predicted, pos_label=' A',
+                              average='weighted')
+    
     # harmonic mean of precision and recall
-    f1 = f1_score(y_test, y_predicted, pos_label=None, average='weighted')
-
+    f1 = f1_score(y_test, y_predicted, pos_label=' A', average='weighted')
+    
     # true positives + true negatives/ total
     accuracy = accuracy_score(y_test, y_predicted)
     return accuracy, precision, recall, f1
