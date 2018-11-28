@@ -10,28 +10,23 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 
-input_file = codecs.open("data/total_labelled.csv", "r",encoding='utf-8')
-output_file = open("data/total_cleaned.csv", "w")
-
-def sanitize_characters(raw, clean):    
-    for line in input_file:
-        out = line.encode("utf-8").strip().replace("#", "") 
-        output_file.write(out + '\n')
-
+input_file = pd.read_csv("data/total_labelled.csv", header=1, dtype={"text": str, "label": str})
+input_file.columns=['text', 'label']
+input_file['label'] = input_file['label'].fillna(' NA')
 def standardize_text(df, text_field):
+    df[text_field] = df[text_field].str.replace(r"#", "")
     df[text_field] = df[text_field].str.replace(r"http\S+", "")
     df[text_field] = df[text_field].str.replace(r"http", "")
     df[text_field] = df[text_field].str.replace(r"@\S+", "")
-    df[text_field] = df[text_field].str.replace(r"[^A-Za-z0-9(),!?@\_\n]", " ")
+    df[text_field] = df[text_field].str.replace(r"[^A-Za-z0-9(),?@\_\n ]", " ")
     df[text_field] = df[text_field].str.replace(r"@", "at")
+    df[text_field] = df[text_field].str.replace(r"\s+", " ")
     df[text_field] = df[text_field].str.lower()
     return df
 
-sanitize_characters(input_file, output_file)
-questions = pd.read_csv("data/total_cleaned.csv")
-questions.columns=['text', 'label']
+pd.set_option('display.max_colwidth', -1)
 
-questions = standardize_text(questions, "text")
+questions = standardize_text(input_file, "text")
 questions.to_csv("data/clean_data.csv", index=False)
 clean_questions = pd.read_csv("data/clean_data.csv")
 
