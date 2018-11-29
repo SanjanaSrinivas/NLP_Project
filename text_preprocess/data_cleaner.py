@@ -22,7 +22,7 @@ def clean_text(input_file_path, output_file_path):
     pd.set_option('display.max_colwidth', -1)
 
     questions = standardize_text(input_file, "text")
-    questions.to_csv(output_file_name, index=False)
+    questions.to_csv(output_file_name, index=False, encoding='utf-8')
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
