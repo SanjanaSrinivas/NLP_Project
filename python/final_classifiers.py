@@ -11,11 +11,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report
 from nltk.tokenize import RegexpTokenizer
+import xgboost
 import gensim
 
 # RUN USING python -W ignore flag
 
-def get_metrics(y_test, y_predicted):  
+def get_binary_metrics(y_test, y_predicted):  
     # true positives / (true positives+false positives)
     precision = precision_score(y_test, y_predicted, pos_label=' A',
                                     average='binary')             
@@ -29,6 +30,35 @@ def get_metrics(y_test, y_predicted):
     # true positives + true negatives/ total
     accuracy = accuracy_score(y_test, y_predicted)
     return accuracy, precision, recall, f1
+
+def get_weighted_metrics(y_test, y_predicted):  
+    # true positives / (true positives+false positives)
+    precision = precision_score(y_test, y_predicted, pos_label=' A',
+                                    average='weighted')             
+    # true positives / (true positives + false negatives)
+    recall = recall_score(y_test, y_predicted, pos_label=' A',
+                              average='weighted')
+    
+    # harmonic mean of precision and recall
+    f1 = f1_score(y_test, y_predicted, pos_label=' A', average='weighted')
+    
+    # true positives + true negatives/ total
+    accuracy = accuracy_score(y_test, y_predicted)
+    return accuracy, precision, recall, f1
+
+def run_classifier(X_train, X_test, y_train, y_test, clf):
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+
+    accuracy, precision, recall, f1 = get_weighted_metrics(y_test, y_pred)
+    print "Weighted Metrics:"
+    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+
+    accuracy, precision, recall, f1 = get_binary_metrics(y_test, y_pred)
+    print "Binary Metrics:"
+    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+
+
 
 def run_classifiers(input_file_path):
     df = pd.read_csv(input_file_path, header = 1)
@@ -44,13 +74,9 @@ def run_classifiers(input_file_path):
     X_train, X_test, y_train, y_test = train_test_split(count_data, labels, 
                                         test_size=0.2, random_state=40)
 
-    clf = DummyClassifier(strategy='stratified')
-    clf.fit(X_train, y_train)
     print "Baseline"
-    y_pred = clf.predict(X_test)
-    accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
-    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
-
+    clf = DummyClassifier(strategy='stratified')
+    run_classifier(X_train, X_test, y_train, y_test, clf)
 
     print "\nTF-IDF"
     tfidf_vect = TfidfVectorizer(encoding='utf-8')
@@ -59,33 +85,26 @@ def run_classifiers(input_file_path):
     X_train, X_test, y_train, y_test = train_test_split(tfidf_data, labels, 
                                         test_size=0.2, random_state=42)
 
-    clf = RandomForestClassifier(n_estimators=80, class_weight={' NA': 6})
-    clf.fit(X_train, y_train)
-    print "Random Forest"
-    y_pred = clf.predict(X_test)
-    accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
-    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
+    print "\nMultinomial NB"
     clf = MultinomialNB()
-    clf.fit(X_train, y_train)
-    print "Multinomial NB"
-    y_pred = clf.predict(X_test)
-    accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
-    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
-
+    run_classifier(X_train, X_test, y_train, y_test, clf)
+    
+    print "\nLogistic Regression"
     clf = LogisticRegression()
-    clf.fit(X_train, y_train)
-    print "Logistic Regression"
-    y_pred = clf.predict(X_test)
-    accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
-    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+    run_classifier(X_train, X_test, y_train, y_test, clf)
 
+    clf = xgboost.XGBClassifier()
+    print "\nXGBoost"
+    run_classifier(X_train, X_test, y_train, y_test, clf)
+
+    print "\nRandom Forest"
+    clf = RandomForestClassifier(n_estimators=80, class_weight={' NA': 6})
+    run_classifier(X_train, X_test, y_train, y_test, clf)
+
+    print "\nSVM"
     clf = SVC(kernel = 'sigmoid', C=60, gamma=0.04)
-    clf.fit(X_train, y_train)
-    print "SVM"
-    y_pred = clf.predict(X_test)
-    accuracy, precision, recall, f1 = get_metrics(y_test, y_pred)
-    print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
+    run_classifier(X_train, X_test, y_train, y_test, clf)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
