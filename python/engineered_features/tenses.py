@@ -10,7 +10,7 @@ def get_tense_vectors(sents):
 		# past
 		feat_vec.append(len([word for word in tagged_sent if word[1] in ['VBD', 'VBN']]))
 		# present
-		feat_vec.append(len([word for word in tagged_sent if (word[1] in ['VBP', 'VBG', 'VBZ'] or word[0] == 'now')]))
+		feat_vec.append(len([word for word in tagged_sent if (word[1] in ['VBP', 'VBG', 'VBZ'] or word[0] in ['now', 'Now', 'expected', 'Expected', 'about to', 'today', 'Today'])]))
 		# future
 		feat_vec.append(len([word for word in tagged_sent if word[1] == 'MD']))
 		feat_vecs.append(feat_vec)
