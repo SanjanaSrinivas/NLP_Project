@@ -55,7 +55,7 @@ def run_classifier(X_train, X_test, y_train, y_test, clf):
     print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
     accuracy, precision, recall, f1 = get_binary_metrics(y_test, y_pred)
-    print "Binary Metrics:"
+    print "Binary Metrics (Positive Label):"
     print("accuracy = %.3f, precision = %.3f, recall = %.3f, f1 = %.3f" % (accuracy, precision, recall, f1))
 
 
@@ -94,8 +94,8 @@ def run_classifiers(input_file_path):
     clf = LogisticRegression()
     run_classifier(X_train, X_test, y_train, y_test, clf)
 
-    clf = xgboost.XGBClassifier()
     print "\nXGBoost"
+    clf = xgboost.XGBClassifier()
     run_classifier(X_train, X_test, y_train, y_test, clf)
 
     print "\nRandom Forest"
